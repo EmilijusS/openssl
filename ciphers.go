@@ -327,8 +327,8 @@ func (ctx *decryptionCipherCtx) DecryptFinal() ([]byte, error) {
 	outbuf := make([]byte, ctx.BlockSize())
 	var outlen C.int
 	if 1 != C.EVP_DecryptFinal_ex(ctx.ctx, (*C.uchar)(&outbuf[0]), &outlen) {
-		// this may mean the tag failed to verify- all previous plaintext
-		// returned must be considered faked and invalid
+		// Error most likely means that the tag failed to verify
+		// Still, return the buffer because we may not care about the tag (encryption without auth mode)
 		return outbuf[:outlen], errors.New("decryption failed")
 	}
 	return outbuf[:outlen], nil
